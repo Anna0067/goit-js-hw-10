@@ -1,3 +1,5 @@
+// index.js
+
 import axios from 'axios';
 import { fetchCatByBreed } from './cat-api';
 
@@ -10,20 +12,21 @@ function fetchBreeds() {
   return axios.get('/breeds').then(({ data }) => data);
 }
 
-const effect = document.querySelector('#effect');
-const breeds = document.querySelector('#breeds');
+const loader = document.querySelector('.loader');
+const breedSelect = document.querySelector('.breed-select');
 const catInfo = document.querySelector('.cat-info');
+const error = document.querySelector('.error');
 
 fetchBreeds().then(data => {
   const html = data.map(
     breed => `<option value="${breed.id}">${breed.name}</option>`
   );
-  breeds.innerHTML = html.join('');
+  breedSelect.innerHTML = html.join('');
 });
 
-breeds.addEventListener('change', ev => {
+breedSelect.addEventListener('change', ev => {
   const breedId = ev.target.value;
-  effect.style.display = 'block';
+  loader.style.display = 'block';
 
   fetchCatByBreed(breedId)
     .then(cats => {
@@ -39,9 +42,9 @@ breeds.addEventListener('change', ev => {
     })
     .catch(error => {
       console.error('Error fetching cat information', error);
-      effect.style.display = 'none';
+      error.style.display = 'block';
     })
     .finally(() => {
-      effect.style.display = 'none';
+      loader.style.display = 'none';
     });
 });
