@@ -1,32 +1,50 @@
-// index.js
-
 import axios from 'axios';
-import { fetchCatByBreed } from './cat-api';
+import { fetchCatByBreed, fetchBreeds } from './cat-api';
 
 axios.defaults.headers.common['x-api-key'] =
   'live_jJ6GzfXCe64rZjvPBrAJMFEOHCy4vLo3BmZHSlqAp3dSfLoc3Jf3Ae31TG1GBbAJ';
 
 axios.defaults.baseURL = 'https://api.thecatapi.com/v1';
 
-function fetchBreeds() {
-  return axios.get('/breeds').then(({ data }) => data);
-}
-
 const loader = document.querySelector('.loader');
 const breedSelect = document.querySelector('.breed-select');
 const catInfo = document.querySelector('.cat-info');
 const error = document.querySelector('.error');
 
-fetchBreeds().then(data => {
-  const html = data.map(
-    breed => `<option value="${breed.id}">${breed.name}</option>`
-  );
-  breedSelect.innerHTML = html.join('');
-});
+function showLoader() {
+  loader.style.display = 'block';
+}
+
+function hideLoader() {
+  loader.style.display = 'none';
+}
+
+function showError() {
+  error.style.display = 'block';
+}
+
+function hideError() {
+  error.style.display = 'none';
+}
+
+fetchBreeds()
+  .then(data => {
+    const html = data.map(
+      breed => `<option value="${breed.id}">${breed.name}</option>`
+    );
+    breedSelect.innerHTML = html.join('');
+    hideError(); // Ukryj komunikat o błędzie po pomyślnym wykonaniu żądania
+  })
+  .catch(() => {
+    showError();
+  })
+  .finally(() => {
+    hideLoader();
+  });
 
 breedSelect.addEventListener('change', ev => {
   const breedId = ev.target.value;
-  loader.style.display = 'block';
+  showLoader();
 
   fetchCatByBreed(breedId)
     .then(cats => {
@@ -39,12 +57,12 @@ breedSelect.addEventListener('change', ev => {
         <img width="800" height="600" src="${cat.url}" alt="Cat Image" />
       `;
       catInfo.innerHTML = catHtml;
+      hideError();
     })
-    .catch(error => {
-      console.error('Error fetching cat information', error);
-      error.style.display = 'block';
+    .catch(() => {
+      showError();
     })
     .finally(() => {
-      loader.style.display = 'none';
+      hideLoader();
     });
 });
