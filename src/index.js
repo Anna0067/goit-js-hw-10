@@ -33,7 +33,7 @@ fetchBreeds()
       breed => `<option value="${breed.id}">${breed.name}</option>`
     );
     breedSelect.innerHTML = html.join('');
-    hideError(); // Ukryj komunikat o błędzie po pomyślnym wykonaniu żądania
+    hideError();
   })
   .catch(() => {
     showError();
@@ -43,6 +43,7 @@ fetchBreeds()
   });
 
 breedSelect.addEventListener('change', ev => {
+  catInfo.innerHTML = '';
   const breedId = ev.target.value;
   showLoader();
 
